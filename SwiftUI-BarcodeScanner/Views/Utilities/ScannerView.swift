@@ -7,12 +7,17 @@
 
 import SwiftUI
 
+// Interoperability between UiKit and SwiftUI
 struct ScannerView: UIViewControllerRepresentable {
+    
+    @Binding var scannedValue: String
+    @Binding var alert: AlertItem?
+
     
     typealias UIViewControllerType = Scanner
     
     func makeCoordinator() -> Coordinator {
-        return Coordinator()
+        return Coordinator(scannerView: self)
     }
     
     func makeUIViewController(context: Context) -> Scanner {
@@ -23,17 +28,19 @@ struct ScannerView: UIViewControllerRepresentable {
 
     final class Coordinator: NSObject, ScannerDelegate {
         
-        override init() {
-            print("Coordinator initialized")
+        private let scanner: ScannerView
+        
+        init(scannerView: ScannerView) {
+            self.scanner = scannerView
         }
         
         func showError(error: ErrorManager) {
-            print(error.description)
+            scanner.alert = error.presentAlert
         }
         
         
         func showDecodedText(_ text: String) {
-            print("Delegate: decoded text is \(text)")
+            scanner.scannedValue = text
         }
         
         func didStartCapturing(_ capturingStarted: Bool) {
@@ -44,8 +51,3 @@ struct ScannerView: UIViewControllerRepresentable {
     
 }
 
-struct ScannerView_Previews: PreviewProvider {
-    static var previews: some View {
-        ScannerView()
-    }
-}

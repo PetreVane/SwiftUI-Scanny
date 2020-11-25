@@ -54,7 +54,7 @@ final class Scanner: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        guard let videoPreviewLayer = videoPreviewLayer else { print("No video preview layer"); return }
+        guard let videoPreviewLayer = videoPreviewLayer else { delegate?.showError(error: .noCameraAccess); return }
         videoPreviewLayer.frame = view.layer.bounds
         view.layer.addSublayer(videoPreviewLayer)
     }
@@ -147,14 +147,13 @@ extension Scanner: AVCaptureMetadataOutputObjectsDelegate {
         // Check if the metadataObjects array is not nil and it contains at least one object
         guard let object = metadataObjects.first else {
             qrCodeFrameView?.frame = CGRect.zero
-            delegate?.showError(error: .missingMetadataObject)
+//            print("Unrecodnized QR code ")
             return
         }
         
         // Get the metadata object
         guard let metadataObj = object as? AVMetadataMachineReadableCodeObject else {
             print("failed casting medatada objects")
-            delegate?.showError(error: .failedCasting)
             return
         }
         
